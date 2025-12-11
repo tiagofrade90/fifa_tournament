@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Campeonato FIFA</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --secondary: #34a853;
+            --danger: #ea4335;
+            --warning: #fbbc05;
+            --light: #f8f9fa;
+            --dark: #202124;
+            --gray: #dadce0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), #0d47a1);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: var(--light);
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #0d62d9;
+        }
+        
+        button.secondary {
+            background-color: var(--secondary);
+        }
+        
+        button.secondary:hover {
+            background-color: #2d9245;
+        }
+        
+        button.danger {
+            background-color: var(--danger);
+        }
+        
+        button.danger:hover {
+            background-color: #d33426;
+        }
+        
+        button.warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        
+        button.warning:hover {
+            background-color: #e6a700;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        th {
+            background-color: var(--light);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .match-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .score-input {
+            width: 50px;
+            text-align: center;
+            margin: 0 10px;
+        }
+        
+        .vs {
+            font-weight: bold;
+            margin: 0 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), #0d47a1);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .notification {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .notification.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .notification.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .notification.info {
+            background-color: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d9ff;
+        }
+        
+        .league-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .league-info {
+            background-color: #e8f4fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .match-result {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .player-info {
+                margin-bottom: 10px;
+            }
+            
+            .score-inputs {
+                display: flex;
+                align-items: center;
+                margin-top: 10px;
+            }
+            
+            .league-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Campeonato FIFA Interno</h1>
+            <p class="subtitle">Gerir jogadores, partidas e classificações</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-tab="dashboard">Dashboard</div>
+            <div class="tab" data-tab="players">Jogadores</div>
+            <div class="tab" data-tab="matches">Partidas</div>
+            <div class="tab" data-tab="standings">Classificação</div>
+        </div>
+        
+        <div id="notification" class="notification"></div>
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <h2>Visão Geral do Campeonato</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total de Jogadores</div>
+                    <div class="stat-value" id="total-players">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Partidas Jogadas</div>
+                    <div class="stat-value" id="matches-played">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Golos Marcados</div>
+                    <div class="stat-value" id="goals-scored">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Líder da Classificação</div>
+                    <div class="stat-value" id="top-player">-</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Próximas Partidas</h3>
+                <div id="upcoming-matches">
+                    <p>Nenhuma partida agendada.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Últimos Resultados</h3>
+                <div id="recent-results">
+                    <p>Nenhum resultado registado.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Players Tab -->
+        <div id="players" class="tab-content">
+            <h2>Gerir Jogadores</h2>
+            
+            <div class="card">
+                <h3>Adicionar Novo Jogador</h3>
+                <form id="add-player-form">
+                    <div class="form-group">
+                        <label for="player-name">Nome do Jogador</label>
+                        <input type="text" id="player-name" placeholder="Ex: João Silva" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="player-team">Equipa Preferida</label>
+                        <input type="text" id="player-team" placeholder="Ex: FC Barcelona">
+                    </div>
+                    <button type="submit" class="secondary">Adicionar Jogador</button>
+                </form>
+                
+                <div class="league-options">
+                    <button class="warning" id="generate-league">Gerar Liga Automaticamente</button>
+                    <button class="danger" id="clear-league">Limpar Todas as Partidas</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Lista de Jogadores</h3>
+                <table id="players-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Equipa</th>
+                            <th>Partidas</th>
+                            <th>Vitórias</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="players-list">
+                        <!-- Jogadores serão inseridos aqui via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Matches Tab -->
+        <div id="matches" class="tab-content">
+            <h2>Gerir Partidas</h2>
+            
+            <div class="card">
+                <h3>Agendar Nova Partida</h3>
+                <form id="add-match-form">
+                    <div class="form-group">
+                        <label for="player1">Jogador 1</label>
+                        <select id="player1" required>
+                            <option value="">Selecionar Jogador</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="player2">Jogador 2</label>
+                        <select id="player2" required>
+                            <option value="">Selecionar Jogador</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="secondary">Agendar Partida</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h3>Partidas Agendadas</h3>
+                <div id="scheduled-matches">
+                    <p>Nenhuma partida agendada.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Registar Resultado</h3>
+                <div id="match-results">
+                    <p>Nenhuma partida para registar resultados.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Standings Tab -->
+        <div id="standings" class="tab-content">
+            <h2>Classificação</h2>
+            
+            <div class="card">
+                <h3>Tabela de Classificação</h3>
+                <table id="standings-table">
+                    <thead>
+                        <tr>
+                            <th>Posição</th>
+                            <th>Jogador</th>
+                            <th>Jogos</th>
+                            <th>Vitórias</th>
+                            <th>Empates</th>
+                            <th>Derrotas</th>
+                            <th>Golos a Favor</th>
+                            <th>Golos Contra</th>
+                            <th>Diferença</th>
+                            <th>Pontos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="standings-list">
+                        <!-- Classificação será inserida aqui via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h3>Estatísticas Individuais</h3>
+                <div id="player-stats">
+                    <p>Seleciona um jogador para ver estatísticas detalhadas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados da aplicação
+        let players = JSON.parse(localStorage.getItem('fifaPlayers')) || [];
+        let matches = JSON.parse(localStorage.getItem('fifaMatches')) || [];
+        let leagueGenerated = JSON.parse(localStorage.getItem('leagueGenerated')) || false;
+        
+        // Elementos da UI
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const notification = document.getElementById('notification');
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Remover classe active de todas as tabs e conteúdos
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    // Adicionar classe active à tab e conteúdo selecionados
+                    tab.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Atualizar dados específicos da tab
+                    if (tabId === 'players') {
+                        updatePlayersList();
+                        populatePlayerSelects();
+                    } else if (tabId === 'matches') {
+                        updateScheduledMatches();
+                        updateMatchResults();
+                        populatePlayerSelects();
+                    } else if (tabId === 'standings') {
+                        updateStandings();
+                    } else if (tabId === 'dashboard') {
+                        updateDashboard();
+                    }
+                });
+            });
+            
+            // Configurar formulários
+            document.getElementById('add-player-form').addEventListener('submit', addPlayer);
+            document.getElementById('add-match-form').addEventListener('submit', addMatch);
+            
+            // Configurar botões da liga
+            document.getElementById('generate-league').addEventListener('click', generateLeague);
+            document.getElementById('clear-league').addEventListener('click', clearLeague);
+            
+            // Carregar dados iniciais
+            updatePlayersList();
+            populatePlayerSelects();
+            updateScheduledMatches();
+            updateMatchResults();
+            updateStandings();
+            updateDashboard();
+            
+            // Mostrar notificação se a liga já foi gerada
+            if (leagueGenerated) {
+                showNotification('Liga já foi gerada automaticamente!', 'info');
+            }
+        });
+        
+        // Funções para gerir jogadores
+        function addPlayer(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('player-name').value;
+            const team = document.getElementById('player-team').value;
+            
+            const newPlayer = {
+                id: Date.now(),
+                name: name,
+                team: team,
+                matches: 0,
+                wins: 0,
+                draws: 0,
+                losses: 0,
+                goalsFor: 0,
+                goalsAgainst: 0
+            };
+            
+            players.push(newPlayer);
+            saveData();
+            
+            document.getElementById('add-player-form').reset();
+            updatePlayersList();
+            populatePlayerSelects();
+            updateDashboard();
+            
+            showNotification('Jogador adicionado com sucesso!', 'success');
+            
+            // Sugerir gerar liga se há jogadores suficientes
+            if (players.length >= 3 && !leagueGenerated) {
+                showNotification(`Tem ${players.length} jogadores. Gostaria de gerar uma liga automaticamente?`, 'info');
+            }
+        }
+        
+        function deletePlayer(id) {
+            if (confirm('Tem a certeza que pretende eliminar este jogador?')) {
+                players = players.filter(player => player.id !== id);
+                
+                // Remover também partidas associadas a este jogador
+                matches = matches.filter(match => 
+                    match.player1.id !== id && match.player2.id !== id
+                );
+                
+                saveData();
+                updatePlayersList();
+                populatePlayerSelects();
+                updateScheduledMatches();
+                updateMatchResults();
+                updateStandings();
+                updateDashboard();
+                
+                showNotification('Jogador eliminado com sucesso!', 'success');
+            }
+        }
+        
+        function updatePlayersList() {
+            const playersList = document.getElementById('players-list');
+            playersList.innerHTML = '';
+            
+            if (players.length === 0) {
+                playersList.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum jogador registado.</td></tr>';
+                return;
+            }
+            
+            players.forEach(player => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${player.name}</td>
+                    <td>${player.team || '-'}</td>
+                    <td>${player.matches}</td>
+                    <td>${player.wins}</td>
+                    <td>
+                        <button class="danger" onclick="deletePlayer(${player.id})">Eliminar</button>
+                    </td>
+                `;
+                playersList.appendChild(row);
+            });
+        }
+        
+        function populatePlayerSelects() {
+            const playerSelects = document.querySelectorAll('select[id^="player"]');
+            
+            playerSelects.forEach(select => {
+                // Guardar o valor atual
+                const currentValue = select.value;
+                
+                // Limpar opções (exceto a primeira)
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                
+                // Adicionar jogadores
+                players.forEach(player => {
+                    const option = document.createElement('option');
+                    option.value = player.id;
+                    option.textContent = player.name;
+                    select.appendChild(option);
+                });
+                
+                // Restaurar o valor anterior se possível
+                if (currentValue && players.some(p => p.id == currentValue)) {
+                    select.value = currentValue;
+                }
+            });
+        }
+        
+        // Funções para gerar a liga
+        function generateLeague() {
+            if (players.length < 2) {
+                showNotification('Precisa de pelo menos 2 jogadores para gerar uma liga!', 'error');
+                return;
+            }
+            
+            if (leagueGenerated) {
+                if (!confirm('Já existe uma liga gerada. Deseja gerar uma nova? Isto irá apagar todas as partidas existentes.')) {
+                    return;
+                }
+            }
+            
+            // Limpar partidas existentes
+            matches = [];
+            
+            // Gerar partidas no formato todos contra todos
+            for (let i = 0; i < players.length; i++) {
+                for (let j = i + 1; j < players.length; j++) {
+                    const player1 = players[i];
+                    const player2 = players[j];
+                    
+                    const newMatch = {
+                        id: Date.now() + Math.random(), // ID único
+                        player1: { id: player1.id, name: player1.name },
+                        player2: { id: player2.id, name: player2.name },
+                        score1: null,
+                        score2: null,
+                        played: false,
+                        date: new Date().toISOString()
+                    };
+                    
+                    matches.push(newMatch);
+                }
+            }
+            
+            leagueGenerated = true;
+            saveData();
+            
+            updateScheduledMatches();
+            updateMatchResults();
+            updateDashboard();
+            
+            showNotification(`Liga gerada com sucesso! ${matches.length} partidas criadas.`, 'success');
+        }
+        
+        function clearLeague() {
+            if (confirm('Tem a certeza que pretende limpar todas as partidas? Esta ação não pode ser desfeita.')) {
+                matches = [];
+                leagueGenerated = false;
+                
+                // Reset estatísticas dos jogadores
+                players.forEach(player => {
+                    player.matches = 0;
+                    player.wins = 0;
+                    player.draws = 0;
+                    player.losses = 0;
+                    player.goalsFor = 0;
+                    player.goalsAgainst = 0;
+                });
+                
+                saveData();
+                
+                updateScheduledMatches();
+                updateMatchResults();
+                updateStandings();
+                updateDashboard();
+                
+                showNotification('Todas as partidas foram eliminadas!', 'success');
+            }
+        }
+        
+        // Funções para gerir partidas
+        function addMatch(e) {
+            e.preventDefault();
+            
+            const player1Id = parseInt(document.getElementById('player1').value);
+            const player2Id = parseInt(document.getElementById('player2').value);
+            
+            if (player1Id === player2Id) {
+                showNotification('Não pode selecionar o mesmo jogador para ambos os lados!', 'error');
+                return;
+            }
+            
+            const player1 = players.find(p => p.id === player1Id);
+            const player2 = players.find(p => p.id === player2Id);
+            
+            // Verificar se a partida já existe
+            const existingMatch = matches.find(match => 
+                (match.player1.id === player1Id && match.player2.id === player2Id) ||
+                (match.player1.id === player2Id && match.player2.id === player1Id)
+            );
+            
+            if (existingMatch) {
+                showNotification('Esta partida já existe no campeonato!', 'error');
+                return;
+            }
+            
+            const newMatch = {
+                id: Date.now(),
+                player1: { id: player1.id, name: player1.name },
+                player2: { id: player2.id, name: player2.name },
+                score1: null,
+                score2: null,
+                played: false,
+                date: new Date().toISOString()
+            };
+            
+            matches.push(newMatch);
+            saveData();
+            
+            document.getElementById('add-match-form').reset();
+            updateScheduledMatches();
+            updateMatchResults();
+            updateDashboard();
+            
+            showNotification('Partida agendada com sucesso!', 'success');
+        }
+        
+        function updateScheduledMatches() {
+            const scheduledMatches = document.getElementById('scheduled-matches');
+            const unplayedMatches = matches.filter(match => !match.played);
+            
+            if (unplayedMatches.length === 0) {
+                scheduledMatches.innerHTML = '<p>Nenhuma partida agendada.</p>';
+                return;
+            }
+            
+            let html = '';
+            unplayedMatches.forEach(match => {
+                html += `
+                    <div class="match-result">
+                        <div class="player-info">
+                            <div class="player-avatar">${match.player1.name.charAt(0)}</div>
+                            <span>${match.player1.name}</span>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="player-info">
+                            <div class="player-avatar">${match.player2.name.charAt(0)}</div>
+                            <span>${match.player2.name}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            scheduledMatches.innerHTML = html;
+        }
+        
+        function updateMatchResults() {
+            const matchResults = document.getElementById('match-results');
+            const unplayedMatches = matches.filter(match => !match.played);
+            
+            if (unplayedMatches.length === 0) {
+                matchResults.innerHTML = '<p>Nenhuma partida para registar resultados.</p>';
+                return;
+            }
+            
+            let html = '';
+            unplayedMatches.forEach(match => {
+                html += `
+                    <div class="match-result">
+                        <div class="player-info">
+                            <div class="player-avatar">${match.player1.name.charAt(0)}</div>
+                            <span>${match.player1.name}</span>
+                        </div>
+                        <div class="score-inputs">
+                            <input type="number" min="0" class="score-input" id="score1-${match.id}" value="0">
+                            <span class="vs">-</span>
+                            <input type="number" min="0" class="score-input" id="score2-${match.id}" value="0">
+                        </div>
+                        <div class="player-info">
+                            <div class="player-avatar">${match.player2.name.charAt(0)}</div>
+                            <span>${match.player2.name}</span>
+                        </div>
+                        <button onclick="recordResult(${match.id})" class="secondary">Registar</button>
+                    </div>
+                `;
+            });
+            
+            matchResults.innerHTML = html;
+        }
+        
+        function recordResult(matchId) {
+            const score1 = parseInt(document.getElementById(`score1-${matchId}`).value);
+            const score2 = parseInt(document.getElementById(`score2-${matchId}`).value);
+            
+            if (isNaN(score1) || isNaN(score2)) {
+                showNotification('Por favor, insira resultados válidos para ambos os jogadores!', 'error');
+                return;
+            }
+            
+            const match = matches.find(m => m.id === matchId);
+            match.score1 = score1;
+            match.score2 = score2;
+            match.played = true;
+            
+            // Atualizar estatísticas dos jogadores
+            updatePlayerStats(match.player1.id, match.player2.id, score1, score2);
+            
+            saveData();
+            updateMatchResults();
+            updateScheduledMatches();
+            updateStandings();
+            updateDashboard();
+            
+            showNotification('Resultado registado com sucesso!', 'success');
+        }
+        
+        function updatePlayerStats(player1Id, player2Id, score1, score2) {
+            const player1 = players.find(p => p.id === player1Id);
+            const player2 = players.find(p => p.id === player2Id);
+            
+            // Atualizar contadores de partidas
+            player1.matches++;
+            player2.matches++;
+            
+            // Atualizar golos
+            player1.goalsFor += score1;
+            player1.goalsAgainst += score2;
+            player2.goalsFor += score2;
+            player2.goalsAgainst += score1;
+            
+            // Determinar vencedor/empate
+            if (score1 > score2) {
+                player1.wins++;
+                player2.losses++;
+            } else if (score2 > score1) {
+                player2.wins++;
+                player1.losses++;
+            } else {
+                player1.draws++;
+                player2.draws++;
+            }
+        }
+        
+        // Funções para a classificação
+        function updateStandings() {
+            const standingsList = document.getElementById('standings-list');
+            standingsList.innerHTML = '';
+            
+            if (players.length === 0) {
+                standingsList.innerHTML = '<tr><td colspan="10" style="text-align: center;">Nenhum jogador registado.</td></tr>';
+                return;
+            }
+            
+            // Ordenar jogadores por pontos (3 por vitória, 1 por empate)
+            const sortedPlayers = [...players].sort((a, b) => {
+                const pointsA = (a.wins * 3) + a.draws;
+                const pointsB = (b.wins * 3) + b.draws;
+                
+                if (pointsA !== pointsB) {
+                    return pointsB - pointsA;
+                }
+                
+                // Em caso de empate, usar diferença de golos
+                const diffA = a.goalsFor - a.goalsAgainst;
+                const diffB = b.goalsFor - b.goalsAgainst;
+                
+                if (diffA !== diffB) {
+                    return diffB - diffA;
+                }
+                
+                // Em caso de empate, usar golos marcados
+                return b.goalsFor - a.goalsFor;
+            });
+            
+            sortedPlayers.forEach((player, index) => {
+                const points = (player.wins * 3) + player.draws;
+                const goalDiff = player.goalsFor - player.goalsAgainst;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${player.name}</td>
+                    <td>${player.matches}</td>
+                    <td>${player.wins}</td>
+                    <td>${player.draws}</td>
+                    <td>${player.losses}</td>
+                    <td>${player.goalsFor}</td>
+                    <td>${player.goalsAgainst}</td>
+                    <td>${goalDiff}</td>
+                    <td><strong>${points}</strong></td>
+                `;
+                standingsList.appendChild(row);
+            });
+        }
+        
+        // Funções para o dashboard
+        function updateDashboard() {
+            // Atualizar estatísticas gerais
+            document.getElementById('total-players').textContent = players.length;
+            
+            const playedMatches = matches.filter(match => match.played).length;
+            document.getElementById('matches-played').textContent = playedMatches;
+            
+            const totalGoals = players.reduce((sum, player) => sum + player.goalsFor, 0);
+            document.getElementById('goals-scored').textContent = totalGoals;
+            
+            // Encontrar líder
+            if (players.length > 0) {
+                const sortedPlayers = [...players].sort((a, b) => {
+                    const pointsA = (a.wins * 3) + a.draws;
+                    const pointsB = (b.wins * 3) + b.draws;
+                    return pointsB - pointsA;
+                });
+                
+                document.getElementById('top-player').textContent = sortedPlayers[0].name;
+            } else {
+                document.getElementById('top-player').textContent = '-';
+            }
+            
+            // Atualizar próximas partidas
+            const upcomingMatches = document.getElementById('upcoming-matches');
+            const unplayedMatches = matches.filter(match => !match.played);
+            
+            if (unplayedMatches.length === 0) {
+                upcomingMatches.innerHTML = '<p>Nenhuma partida agendada.</p>';
+            } else {
+                let html = '';
+                unplayedMatches.slice(0, 5).forEach(match => {
+                    html += `
+                        <div class="match-result">
+                            <div class="player-info">
+                                <div class="player-avatar">${match.player1.name.charAt(0)}</div>
+                                <span>${match.player1.name}</span>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="player-info">
+                                <div class="player-avatar">${match.player2.name.charAt(0)}</div>
+                                <span>${match.player2.name}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                upcomingMatches.innerHTML = html;
+            }
+            
+            // Atualizar últimos resultados
+            const recentResults = document.getElementById('recent-results');
+            const playedMatchesList = matches.filter(match => match.played);
+            
+            if (playedMatchesList.length === 0) {
+                recentResults.innerHTML = '<p>Nenhum resultado registado.</p>';
+            } else {
+                let html = '';
+                playedMatchesList.slice(-5).reverse().forEach(match => {
+                    html += `
+                        <div class="match-result">
+                            <div class="player-info">
+                                <div class="player-avatar">${match.player1.name.charAt(0)}</div>
+                                <span>${match.player1.name}</span>
+                            </div>
+                            <div class="score-inputs">
+                                <span class="score-input">${match.score1}</span>
+                                <span class="vs">-</span>
+                                <span class="score-input">${match.score2}</span>
+                            </div>
+                            <div class="player-info">
+                                <div class="player-avatar">${match.player2.name.charAt(0)}</div>
+                                <span>${match.player2.name}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                recentResults.innerHTML = html;
+            }
+        }
+        
+        // Funções utilitárias
+        function saveData() {
+            localStorage.setItem('fifaPlayers', JSON.stringify(players));
+            localStorage.setItem('fifaMatches', JSON.stringify(matches));
+            localStorage.setItem('leagueGenerated', JSON.stringify(leagueGenerated));
+        }
+        
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
